@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import { useCallback, useState } from 'react'
 import Nav from 'react-bootstrap/Nav'
 import styled from 'styled-components'
 import { TAB_HOME, TAB_POOLS } from './constants'

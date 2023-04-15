@@ -1,10 +1,10 @@
-import { CurrencyAmount } from '@uniswap/sdk-core'
+import { CurrencyAmount, Percent } from '@uniswap/sdk-core'
 import IUniswapV3PoolABI from '@uniswap/v3-core/artifacts/contracts/interfaces/IUniswapV3Pool.sol/IUniswapV3Pool.json'
-import { nearestUsableTick, Pool, Position } from '@uniswap/v3-sdk'
+import { MintOptions, nearestUsableTick, NonfungiblePositionManager, Pool, Position } from '@uniswap/v3-sdk'
 import { ethers } from 'ethers'
 import JSBI from 'jsbi'
 
-import { POOL_ADDRESS, USDC_TOKEN, WETH_TOKEN } from './constants'
+import { NONFUNGIBLE_POSITION_MANAGER_CONTRACT_ADDRESS, POOL_ADDRESS, USDC_TOKEN, WETH_TOKEN } from './constants'
 
 interface PoolInfo {
     token0: string
@@ -19,36 +19,57 @@ interface PoolInfo {
 export class UniswapClient {
     private readonly provider = new ethers.providers.Web3Provider(window.ethereum)
 
+    get signer() {
+        return this.provider.getSigner()
+    }
+
     async connect() {
         return window.ethereum.enable()
     }
 
     async getAddress() {
-        const signer = this.provider.getSigner()
-        return signer.getAddress()
+        return this.signer.getAddress()
     }
 
     async addLiquidity(ethAmount: number, usdcAmount: number) {
         const poolInfo = await this.getPoolInfo()
-        console.log(poolInfo)
         const pool = new Pool(
-            WETH_TOKEN,
             USDC_TOKEN,
+            WETH_TOKEN,
             poolInfo.fee,
             poolInfo.sqrtPriceX96.toString(),
             poolInfo.liquidity.toString(),
             poolInfo.tick,
         )
-        const wethCurrencyAmount = CurrencyAmount.fromRawAmount(WETH_TOKEN, this.fromReadableAmount(ethAmount, 18))
         const usdcCurrencyAmount = CurrencyAmount.fromRawAmount(USDC_TOKEN, this.fromReadableAmount(usdcAmount, 6))
-        return Position.fromAmounts({
+        const wethCurrencyAmount = CurrencyAmount.fromRawAmount(WETH_TOKEN, this.fromReadableAmount(ethAmount, 18))
+        const positionToMint = Position.fromAmounts({
             pool,
             tickLower: nearestUsableTick(poolInfo.tick, poolInfo.tickSpacing) - poolInfo.tickSpacing * 2,
             tickUpper: nearestUsableTick(poolInfo.tick, poolInfo.tickSpacing) + poolInfo.tickSpacing * 2,
-            amount0: wethCurrencyAmount.quotient,
-            amount1: usdcCurrencyAmount.quotient,
+            amount0: usdcCurrencyAmount.quotient,
+            amount1: wethCurrencyAmount.quotient,
             useFullPrecision: true,
         })
+        const address = await this.getAddress()
+        const mintOptions: MintOptions = {
+            recipient: address,
+            deadline: Math.floor(Date.now() / 1000) + 60 * 20,
+            slippageTolerance: new Percent(50, 10_000),
+        }
+        const { calldata, value } = NonfungiblePositionManager.addCallParameters(positionToMint, mintOptions)
+        const transaction = {
+            data: calldata,
+            to: NONFUNGIBLE_POSITION_MANAGER_CONTRACT_ADDRESS,
+            value: value,
+            from: address,
+            //maxFeePerGas: MAX_FEE_PER_GAS,
+            //maxPriorityFeePerGas: MAX_PRIORITY_FEE_PER_GAS,
+        }
+        const tx = await this.signer.sendTransaction(transaction)
+        const receipt = await tx.wait()
+        console.log(receipt.transactionHash)
+        return
     }
 
     async getLiquidityAmount() {
