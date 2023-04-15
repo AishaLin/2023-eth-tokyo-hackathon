@@ -36,14 +36,21 @@ const App = () => {
         setAddress(connectedAddress)
     }, [uniswapClient])
 
+    const checkConnectStatus = useCallback(async() => {
+        const accounts = window.ethereum.request({ method: 'eth_accounts' })
+        if (accounts.length) {
+            getAddress()
+        }
+    }, [getAddress])
+
     const handleConnectWallet = useCallback(async () => {
         await uniswapClient.connect()
         await getAddress()
     }, [getAddress, uniswapClient])
 
     useEffect(() => {
-        getAddress()
-    }, [getAddress])
+        checkConnectStatus()
+    }, [checkConnectStatus])
 
     return (
         <Root>
@@ -57,7 +64,7 @@ const App = () => {
                 <ConnectButton onClick={handleConnectWallet}>{address || 'Connect Wallet'}</ConnectButton>
             </Nav>
             {currentEventKey === TAB_HOME && <PageHome />}
-            {currentEventKey === TAB_POOLS && <PagePools isConnected={!!address} uniswapClient={uniswapClient} handleTabChange={handleTabChange} />}
+            {currentEventKey === TAB_POOLS && <PagePools isConnected={!!address} uniswapClient={uniswapClient} handleTabChange={handleTabChange} handleConnectWallet={handleConnectWallet} />}
         </Root>
     )
 }

@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { memo, useCallback, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
@@ -96,6 +96,18 @@ const PagePools = ({ isConnected, uniswapClient, handleTabChange }) => {
         handleTabChange(TAB_HOME)
     }, [foodAmount, foodType, handleTabChange, uniswapClient, waterAmount])
 
+    const submitButton = useMemo(() => {
+        return isConnected ? (
+            <FeedButton variant="primary" type="submit" disabled={!isInfoCompleted} onClick={handleAddLiquiditySubmit}>
+                Go Feed!
+            </FeedButton>
+        ) : (
+            <FeedButton variant="primary" type="submit" disabled>
+                Please Connect Wallet First
+            </FeedButton>
+        )
+    }, [handleAddLiquiditySubmit, isConnected, isInfoCompleted])
+
     return (
         <Root>
             <PoolsForm>
@@ -170,17 +182,10 @@ const PagePools = ({ isConnected, uniswapClient, handleTabChange }) => {
                             : 'Choose currency as food and water, feed your cat.'}
                     </Form.Text>
                 </Form.Group>
-                <FeedButton
-                    variant="primary"
-                    type="submit"
-                    disabled={!isInfoCompleted}
-                    onClick={handleAddLiquiditySubmit}
-                >
-                    {isConnected ? 'Go Feed!' : 'Connect Wallet'}
-                </FeedButton>
+                {submitButton}
             </PoolsForm>
         </Root>
     )
 }
 
-export default PagePools
+export default memo(PagePools)
