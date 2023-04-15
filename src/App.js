@@ -26,17 +26,28 @@ const App = () => {
     const uniswapClient = useMemo(() => new UniswapClient(), [])
     const [currentEventKey, setCurrentEventKey] = useState(TAB_HOME)
     const [address, setAddress] = useState(null)
+    const [currentLiquidityAmount, setCurrentLiquidityAmount] = useState()
 
     const handleTabChange = useCallback(eventKey => {
         setCurrentEventKey(eventKey)
     }, [])
+
+    const getLiquidityAmount = useCallback(async () => {
+        const liquidityAmount = await uniswapClient.getLiquidityAmount()
+        setCurrentLiquidityAmount(liquidityAmount)
+    }, [uniswapClient])
+
+    const navigateToHomeAndCheckLiquidityAmount = useCallback(() => {
+        setCurrentEventKey(TAB_HOME)
+        getLiquidityAmount()
+    }, [getLiquidityAmount])
 
     const getAddress = useCallback(async () => {
         const connectedAddress = await uniswapClient.getAddress()
         setAddress(connectedAddress)
     }, [uniswapClient])
 
-    const checkConnectStatus = useCallback(async() => {
+    const checkConnectStatus = useCallback(async () => {
         const accounts = await window.ethereum.request({ method: 'eth_accounts' })
         if (accounts?.length) {
             await getAddress()
@@ -52,6 +63,11 @@ const App = () => {
         checkConnectStatus()
     }, [checkConnectStatus])
 
+    useEffect(() => {
+        getLiquidityAmount()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
     return (
         <Root>
             <Nav variant="tabs" defaultActiveKey={TAB_HOME} onSelect={handleTabChange}>
@@ -63,8 +79,15 @@ const App = () => {
                 </Nav.Item>
                 <ConnectButton onClick={handleConnectWallet}>{address || 'Connect Wallet'}</ConnectButton>
             </Nav>
-            {currentEventKey === TAB_HOME && <PageHome />}
-            {currentEventKey === TAB_POOLS && <PagePools isConnected={!!address} uniswapClient={uniswapClient} handleTabChange={handleTabChange} handleConnectWallet={handleConnectWallet} />}
+            {currentEventKey === TAB_HOME && <PageHome currentLiquidityAmount={currentLiquidityAmount} />}
+            {currentEventKey === TAB_POOLS && (
+                <PagePools
+                    isConnected={!!address}
+                    uniswapClient={uniswapClient}
+                    navigateToHomeAndCheckLiquidityAmount={navigateToHomeAndCheckLiquidityAmount}
+                    handleConnectWallet={handleConnectWallet}
+                />
+            )}
         </Root>
     )
 }
