@@ -57,7 +57,7 @@ const App = () => {
                 <ConnectButton onClick={handleConnectWallet}>{address || 'Connect Wallet'}</ConnectButton>
             </Nav>
             {currentEventKey === TAB_HOME && <PageHome />}
-            {currentEventKey === TAB_POOLS && <PagePools isConnected={!!address} uniswapClient={uniswapClient} handleTabChange={handleTabChange} />}
+            {currentEventKey === TAB_POOLS && <PagePools isConnected={!!address} uniswapClient={uniswapClient} handleTabChange={handleTabChange} handleConnectWallet={handleConnectWallet} />}
         </Root>
     )
 }

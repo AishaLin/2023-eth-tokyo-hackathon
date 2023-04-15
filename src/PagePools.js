@@ -56,7 +56,7 @@ const FeedButton = styled(Button)`
     width: 100%;
 `
 
-const PagePools = ({ isConnected, uniswapClient, handleTabChange }) => {
+const PagePools = ({ isConnected, uniswapClient, handleTabChange, handleConnectWallet }) => {
     const [foodType, setFoodType] = useState(null)
     const [foodAmount, setFoodAmount] = useState(0)
     const [waterType, setWaterType] = useState(null)
@@ -173,8 +173,8 @@ const PagePools = ({ isConnected, uniswapClient, handleTabChange }) => {
                 <FeedButton
                     variant="primary"
                     type="submit"
-                    disabled={!isInfoCompleted}
-                    onClick={handleAddLiquiditySubmit}
+                    disabled={isConnected && !isInfoCompleted}
+                    onClick={isConnected ? handleAddLiquiditySubmit : handleConnectWallet}
                 >
                     {isConnected ? 'Go Feed!' : 'Connect Wallet'}
                 </FeedButton>
