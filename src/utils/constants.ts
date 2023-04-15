@@ -1,0 +1,6 @@
+import { Token, SupportedChainId } from '@uniswap/sdk-core'
+
+export const WETH_TOKEN = new Token(SupportedChainId.ARBITRUM_GOERLI, '0xe39Ab88f8A4777030A534146A9Ca3B52bd5D43A3', 18)
+export const USDC_TOKEN = new Token(SupportedChainId.ARBITRUM_GOERLI, '0x8FB1E3fC51F3b789dED7557E680551d93Ea9d892', 6)
+// export const POOL_FACTORY_CONTRACT_ADDRESS = '0x1F98431c8aD98523631AE4a59f267346ea31F984'
+export const POOL_ADDRESS = '0x12B2483ADd89741e89C25F2E1C798F9fe8EF7664'
