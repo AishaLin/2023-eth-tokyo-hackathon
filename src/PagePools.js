@@ -1,12 +1,17 @@
 import { memo, useCallback, useMemo, useState } from 'react'
-import styled from 'styled-components'
+import styled, { keyframes } from 'styled-components'
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import Dropdown from 'react-bootstrap/Dropdown'
 import DropdownButton from 'react-bootstrap/DropdownButton'
 import { SYMBOL_USDC, SYMBOL_WETH, TAB_HOME } from './constants'
-import food from './assets/chocolate_chip_cookie.png'
-import water from './assets/service_water.png'
+import cat_food from './assets/cat_food.svg'
+import water_bowl from './assets/water_bowl.svg'
+
+const Spin = keyframes`
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+`
 
 const Root = styled.div`
     display: flex;
@@ -30,11 +35,11 @@ const ItemTittle = styled(Form.Label)`
     display: flex;
     align-items: center;
 `
-const CookieIcon = styled.img.attrs({ src: food })`
+const FoodIcon = styled.img.attrs({ src: cat_food })`
     width: 24px;
     margin-right: 4px;
 `
-const WaterIcon = styled.img.attrs({ src: water })`
+const WaterIcon = styled.img.attrs({ src: water_bowl })`
     width: 24px;
     margin-right: 4px;
 `
@@ -52,15 +57,28 @@ const TypeDropDown = styled(DropdownButton)`
     }
 `
 const FeedButton = styled(Button)`
+    display: flex;
+    justify-content: center;
+    align-items: center;
     margin-top: 12px;
     width: 100%;
+    height: 42px;
+`
+const Loader = styled.div`
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #3498db;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    animation: ${Spin} 2s linear infinite;
 `
 
-const PagePools = ({ isConnected, uniswapClient, handleTabChange }) => {
+const PagePools = ({ isConnected, uniswapClient, navigateToHomeAndCheckLiquidityAmount }) => {
     const [foodType, setFoodType] = useState(null)
     const [foodAmount, setFoodAmount] = useState(0)
     const [waterType, setWaterType] = useState(null)
     const [waterAmount, setWaterAmount] = useState(0)
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
     const isInfoCompleted = useMemo(() => {
         return !!waterType && !!waterAmount && !!foodType && !!foodAmount
@@ -83,6 +101,7 @@ const PagePools = ({ isConnected, uniswapClient, handleTabChange }) => {
     }, [])
 
     const handleAddLiquiditySubmit = useCallback(async () => {
+        setIsSubmitting(true)
         let ethAmount
         let usdcAmount
         if (foodType === SYMBOL_WETH) {
@@ -93,20 +112,21 @@ const PagePools = ({ isConnected, uniswapClient, handleTabChange }) => {
             usdcAmount = foodAmount
         }
         await uniswapClient.addLiquidity(ethAmount, usdcAmount)
-        handleTabChange(TAB_HOME)
-    }, [foodAmount, foodType, handleTabChange, uniswapClient, waterAmount])
+        setIsSubmitting(false)
+        navigateToHomeAndCheckLiquidityAmount()
+    }, [foodAmount, foodType, navigateToHomeAndCheckLiquidityAmount, uniswapClient, waterAmount])
 
     const submitButton = useMemo(() => {
         return isConnected ? (
             <FeedButton variant="primary" disabled={!isInfoCompleted} onClick={handleAddLiquiditySubmit}>
-                Go Feed!
+                {isSubmitting ? <Loader/> : 'Go Feed!'}
             </FeedButton>
         ) : (
             <FeedButton variant="primary" disabled>
                 Please Connect Wallet First
             </FeedButton>
         )
-    }, [handleAddLiquiditySubmit, isConnected, isInfoCompleted])
+    }, [handleAddLiquiditySubmit, isConnected, isInfoCompleted, isSubmitting])
 
     return (
         <Root>
@@ -114,7 +134,7 @@ const PagePools = ({ isConnected, uniswapClient, handleTabChange }) => {
                 <Header>Feed Your Cat!</Header>
                 <Form.Group className="mb-3" controlId="formFood">
                     <ItemTittle>
-                        <CookieIcon />
+                        <FoodIcon />
                         Food
                     </ItemTittle>
                     <CurrencyWrapper>
