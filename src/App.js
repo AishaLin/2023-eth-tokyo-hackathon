@@ -37,10 +37,9 @@ const App = () => {
         setCurrentLiquidityAmount(liquidityAmount)
     }, [uniswapClient])
 
-    const navigateToHomeAndCheckLiquidityAmount = useCallback(() => {
+    const navigateToHomePage = useCallback(() => {
         setCurrentEventKey(TAB_HOME)
-        getLiquidityAmount()
-    }, [getLiquidityAmount])
+    }, [])
 
     const getAddress = useCallback(async () => {
         const connectedAddress = await uniswapClient.getAddress()
@@ -84,8 +83,9 @@ const App = () => {
                 <PagePools
                     isConnected={!!address}
                     uniswapClient={uniswapClient}
-                    navigateToHomeAndCheckLiquidityAmount={navigateToHomeAndCheckLiquidityAmount}
+                    navigateToHomePage={navigateToHomePage}
                     handleConnectWallet={handleConnectWallet}
+                    getLiquidityAmount={getLiquidityAmount}
                 />
             )}
         </Root>

@@ -1,12 +1,13 @@
-import { memo, useCallback, useMemo, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import styled, { keyframes } from 'styled-components'
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import Dropdown from 'react-bootstrap/Dropdown'
 import DropdownButton from 'react-bootstrap/DropdownButton'
-import { SYMBOL_USDC, SYMBOL_WETH, TAB_HOME } from './constants'
+import { SYMBOL_USDC, SYMBOL_WETH } from './constants'
 import cat_food from './assets/cat_food.svg'
 import water_bowl from './assets/water_bowl.svg'
+import cat_paw from './assets/cat_paw.svg'
 
 const Spin = keyframes`
     0% { transform: rotate(0deg); }
@@ -19,6 +20,7 @@ const Root = styled.div`
     align-items: center;
 `
 const PoolsForm = styled(Form)`
+    position: relative;
     margin-top: 100px;
     border: 1px solid rgba(152, 161, 192, 0.24);
     border-radius: 16px;
@@ -72,13 +74,26 @@ const Loader = styled.div`
     height: 28px;
     animation: ${Spin} 2s linear infinite;
 `
+const CatPaw = styled.img.attrs({ src: cat_paw })`
+    display: inline-block;
+    position: absolute;
+    right: -50px;
+    bottom: -20px;
+    width: calc(477px * 0.3);
+    height: calc(412px * 0.3);
+    opacity: ${({ $show }) => ($show ? 0.9 : 0)};
+    transform: rotate(-30deg) translate(-50%, -50%);
+    transition: opacity 0.3s ease-in-out;
+`
 
-const PagePools = ({ isConnected, uniswapClient, navigateToHomeAndCheckLiquidityAmount }) => {
+const PagePools = ({ isConnected, uniswapClient, navigateToHomePage, getLiquidityAmount }) => {
     const [foodType, setFoodType] = useState(null)
     const [foodAmount, setFoodAmount] = useState(0)
     const [waterType, setWaterType] = useState(null)
     const [waterAmount, setWaterAmount] = useState(0)
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [isSubmitDone, setIsSubmitDone] = useState(false)
+    const setTimeoutRef = useRef()
 
     const isInfoCompleted = useMemo(() => {
         return !!waterType && !!waterAmount && !!foodType && !!foodAmount
@@ -113,13 +128,15 @@ const PagePools = ({ isConnected, uniswapClient, navigateToHomeAndCheckLiquidity
         }
         await uniswapClient.addLiquidity(ethAmount, usdcAmount)
         setIsSubmitting(false)
-        navigateToHomeAndCheckLiquidityAmount()
-    }, [foodAmount, foodType, navigateToHomeAndCheckLiquidityAmount, uniswapClient, waterAmount])
+        getLiquidityAmount()
+        setIsSubmitDone(true)
+        setTimeoutRef.current = setTimeout(() => navigateToHomePage(), 1300)
+    }, [foodAmount, foodType, getLiquidityAmount, navigateToHomePage, uniswapClient, waterAmount])
 
     const submitButton = useMemo(() => {
         return isConnected ? (
             <FeedButton variant="primary" disabled={!isInfoCompleted} onClick={handleAddLiquiditySubmit}>
-                {isSubmitting ? <Loader/> : 'Go Feed!'}
+                {isSubmitting ? <Loader /> : 'Go Feed!'}
             </FeedButton>
         ) : (
             <FeedButton variant="primary" disabled>
@@ -127,6 +144,10 @@ const PagePools = ({ isConnected, uniswapClient, navigateToHomeAndCheckLiquidity
             </FeedButton>
         )
     }, [handleAddLiquiditySubmit, isConnected, isInfoCompleted, isSubmitting])
+
+    useEffect(() => {
+        return () => clearTimeout(setTimeoutRef.current)
+    }, [])
 
     return (
         <Root>
@@ -203,6 +224,7 @@ const PagePools = ({ isConnected, uniswapClient, navigateToHomeAndCheckLiquidity
                     </Form.Text>
                 </Form.Group>
                 {submitButton}
+                <CatPaw $show={isSubmitDone} />
             </PoolsForm>
         </Root>
     )
