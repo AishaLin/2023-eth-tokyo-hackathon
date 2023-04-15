@@ -1,2 +1,4 @@
-export const TAB_HOME = 'home'
-export const TAB_POOLS = 'pools'
+export const TAB_HOME = 'tab_home'
+export const TAB_POOLS = 'tab_pools'
+export const SYMBOL_WETH = 'WETH'
+export const SYMBOL_USDC = 'USDC'
