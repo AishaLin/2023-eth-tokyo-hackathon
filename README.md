@@ -1,6 +1,7 @@
 # ManekiNeko
 
-![cat logo](https://github.com/AishaLin/2023-eth-tokyo-hackathon/blob/main/image.jpg?raw=true)
+![cat logo](https://raw.githubusercontent.com/AishaLin/2023-eth-tokyo-hackathon/main/logo.svg)
+
 A gamification and visualization tool to make defi more fun!
 
 ## Install
