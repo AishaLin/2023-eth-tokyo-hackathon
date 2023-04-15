@@ -27,7 +27,7 @@ const App = () => {
     const [currentEventKey, setCurrentEventKey] = useState(TAB_HOME)
     const [address, setAddress] = useState(null)
 
-    const handleTabSelect = useCallback(eventKey => {
+    const handleTabChange = useCallback(eventKey => {
         setCurrentEventKey(eventKey)
     }, [])
 
@@ -47,7 +47,7 @@ const App = () => {
 
     return (
         <Root>
-            <Nav variant="tabs" defaultActiveKey={TAB_HOME} onSelect={handleTabSelect}>
+            <Nav variant="tabs" defaultActiveKey={TAB_HOME} onSelect={handleTabChange}>
                 <Nav.Item>
                     <Nav.Link eventKey={TAB_HOME}>Home</Nav.Link>
                 </Nav.Item>
@@ -57,7 +57,7 @@ const App = () => {
                 <ConnectButton onClick={handleConnectWallet}>{address || 'Connect Wallet'}</ConnectButton>
             </Nav>
             {currentEventKey === TAB_HOME && <PageHome />}
-            {currentEventKey === TAB_POOLS && <PagePools isConnected={!!address} />}
+            {currentEventKey === TAB_POOLS && <PagePools isConnected={!!address} uniswapClient={uniswapClient} handleTabChange={handleTabChange} />}
         </Root>
     )
 }
