@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo, useState } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
@@ -98,11 +98,11 @@ const PagePools = ({ isConnected, uniswapClient, handleTabChange }) => {
 
     const submitButton = useMemo(() => {
         return isConnected ? (
-            <FeedButton variant="primary" type="submit" disabled={!isInfoCompleted} onClick={handleAddLiquiditySubmit}>
+            <FeedButton variant="primary" disabled={!isInfoCompleted} onClick={handleAddLiquiditySubmit}>
                 Go Feed!
             </FeedButton>
         ) : (
-            <FeedButton variant="primary" type="submit" disabled>
+            <FeedButton variant="primary" disabled>
                 Please Connect Wallet First
             </FeedButton>
         )

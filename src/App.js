@@ -37,9 +37,9 @@ const App = () => {
     }, [uniswapClient])
 
     const checkConnectStatus = useCallback(async() => {
-        const accounts = window.ethereum.request({ method: 'eth_accounts' })
-        if (accounts.length) {
-            getAddress()
+        const accounts = await window.ethereum.request({ method: 'eth_accounts' })
+        if (accounts?.length) {
+            await getAddress()
         }
     }, [getAddress])
 
