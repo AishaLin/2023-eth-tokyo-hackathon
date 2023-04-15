@@ -40,7 +40,7 @@ export class UniswapClient {
             poolInfo.tick,
         )
         const wethCurrencyAmount = CurrencyAmount.fromRawAmount(WETH_TOKEN, this.fromReadableAmount(ethAmount, 18))
-        const usdcCurrencyAmount = CurrencyAmount.fromRawAmount(USDC_TOKEN, this.fromReadableAmount(ethAmount, 6))
+        const usdcCurrencyAmount = CurrencyAmount.fromRawAmount(USDC_TOKEN, this.fromReadableAmount(usdcAmount, 6))
         return Position.fromAmounts({
             pool,
             tickLower: nearestUsableTick(poolInfo.tick, poolInfo.tickSpacing) - poolInfo.tickSpacing * 2,
