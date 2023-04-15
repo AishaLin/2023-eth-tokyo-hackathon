@@ -74,7 +74,7 @@ const App = () => {
                     <Nav.Link eventKey={TAB_HOME}>Home</Nav.Link>
                 </Nav.Item>
                 <Nav.Item>
-                    <Nav.Link eventKey={TAB_POOLS}>Pools</Nav.Link>
+                    <Nav.Link eventKey={TAB_POOLS}>Feed</Nav.Link>
                 </Nav.Item>
                 <ConnectButton onClick={handleConnectWallet}>{address || 'Connect Wallet'}</ConnectButton>
             </Nav>

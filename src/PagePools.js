@@ -8,6 +8,7 @@ import { SYMBOL_USDC, SYMBOL_WETH } from './constants'
 import cat_food from './assets/cat_food.svg'
 import water_bowl from './assets/water_bowl.svg'
 import cat_paw from './assets/cat_paw.svg'
+import logo from './assets/cat_logo.svg'
 
 const Spin = keyframes`
     0% { transform: rotate(0deg); }
@@ -16,15 +17,17 @@ const Spin = keyframes`
 
 const Root = styled.div`
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
 `
 const PoolsForm = styled(Form)`
     position: relative;
-    margin-top: 100px;
+    margin-top: 20px;
     border: 1px solid rgba(152, 161, 192, 0.24);
     border-radius: 16px;
     padding: 0 16px 32px;
+    box-shadow: 0 0 6px 0 rgba(152, 161, 192, 0.2);
 `
 const Header = styled.div`
     display: flex;
@@ -84,6 +87,11 @@ const CatPaw = styled.img.attrs({ src: cat_paw })`
     opacity: ${({ $show }) => ($show ? 0.9 : 0)};
     transform: rotate(-30deg) translate(-50%, -50%);
     transition: opacity 0.3s ease-in-out;
+`
+const Logo = styled.img.attrs({ src: logo })`
+    margin-top: 32px;
+    width: calc(312px * 0.5);
+    height: calc(244px * 0.5);
 `
 
 const PagePools = ({ isConnected, uniswapClient, navigateToHomePage, getLiquidityAmount }) => {
@@ -151,6 +159,7 @@ const PagePools = ({ isConnected, uniswapClient, navigateToHomePage, getLiquidit
 
     return (
         <Root>
+            <Logo />
             <PoolsForm>
                 <Header>Feed Your Cat!</Header>
                 <Form.Group className="mb-3" controlId="formFood">
@@ -163,7 +172,7 @@ const PagePools = ({ isConnected, uniswapClient, navigateToHomePage, getLiquidit
                         <TypeDropDown
                             id="dropdown-button-dark-example2"
                             variant={!!foodType ? 'light' : 'secondary'}
-                            title={foodType || 'type'}
+                            title={foodType || 'TOKEN'}
                             className="mb-1"
                             onSelect={handleFoodSymbolSelect}
                         >
@@ -195,7 +204,7 @@ const PagePools = ({ isConnected, uniswapClient, navigateToHomePage, getLiquidit
                         <TypeDropDown
                             id="dropdown-button-dark-example2"
                             variant={!!waterType ? 'light' : 'secondary'}
-                            title={waterType || 'type'}
+                            title={waterType || 'TOKEN'}
                             className="mb-1"
                             onSelect={handleWaterSymbolSelect}
                         >
