@@ -1,7 +1,8 @@
-import React, { useMemo, useRef } from 'react'
+import React from 'react'
 import styled, { keyframes } from 'styled-components'
 import normal_cat from '../src/assets/normal_cat.svg'
 import fat_cat from '../src/assets/fat_cat.svg'
+import { GROW_UP_AMOUNT_BOUNDARY } from './constants'
 
 const CatPulse = keyframes`
   from {
@@ -43,8 +44,8 @@ const FatCat = styled(Cat).attrs({ src: fat_cat })`
 const PageHome = ({ currentLiquidityAmount }) => {
     return (
         <Root>
-            <NormalCat $show={currentLiquidityAmount <= 50} />
-            <FatCat $show={currentLiquidityAmount > 50} />
+            <NormalCat $show={currentLiquidityAmount <= GROW_UP_AMOUNT_BOUNDARY} />
+            <FatCat $show={currentLiquidityAmount > GROW_UP_AMOUNT_BOUNDARY} />
         </Root>
     )
 }
