@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { memo, useCallback, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
@@ -56,7 +56,7 @@ const FeedButton = styled(Button)`
     width: 100%;
 `
 
-const PagePools = ({ isConnected, uniswapClient, handleTabChange, handleConnectWallet }) => {
+const PagePools = ({ isConnected, uniswapClient, handleTabChange }) => {
     const [foodType, setFoodType] = useState(null)
     const [foodAmount, setFoodAmount] = useState(0)
     const [waterType, setWaterType] = useState(null)
@@ -95,6 +95,18 @@ const PagePools = ({ isConnected, uniswapClient, handleTabChange, handleConnectW
         await uniswapClient.addLiquidity(ethAmount, usdcAmount)
         handleTabChange(TAB_HOME)
     }, [foodAmount, foodType, handleTabChange, uniswapClient, waterAmount])
+
+    const submitButton = useMemo(() => {
+        return isConnected ? (
+            <FeedButton variant="primary" type="submit" disabled={!isInfoCompleted} onClick={handleAddLiquiditySubmit}>
+                Go Feed!
+            </FeedButton>
+        ) : (
+            <FeedButton variant="primary" type="submit" disabled>
+                Please Connect Wallet First
+            </FeedButton>
+        )
+    }, [handleAddLiquiditySubmit, isConnected, isInfoCompleted])
 
     return (
         <Root>
@@ -170,17 +182,10 @@ const PagePools = ({ isConnected, uniswapClient, handleTabChange, handleConnectW
                             : 'Choose currency as food and water, feed your cat.'}
                     </Form.Text>
                 </Form.Group>
-                <FeedButton
-                    variant="primary"
-                    type="submit"
-                    disabled={isConnected && !isInfoCompleted}
-                    onClick={isConnected ? handleAddLiquiditySubmit : handleConnectWallet}
-                >
-                    {isConnected ? 'Go Feed!' : 'Connect Wallet'}
-                </FeedButton>
+                {submitButton}
             </PoolsForm>
         </Root>
     )
 }
 
-export default PagePools
+export default memo(PagePools)
