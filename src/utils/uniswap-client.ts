@@ -201,7 +201,7 @@ export class UniswapClient {
         if (Math.floor(x) === x) {
             return 0
         }
-        return x.toString().split('.')[1].length || 0
+        return x.toString().split('.')[1]?.length || 0
     }
 
     private tickToPrice(tick: number): number {
