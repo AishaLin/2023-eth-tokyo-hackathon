@@ -1,7 +1,12 @@
 import React from 'react'
+import styled from 'styled-components'
+
+const Root = styled.div`
+  
+`
 
 const PageHome = () => {
-  return <div>PageHome</div>
+  return <Root>PageHome</Root>
 }
 
 export default PageHome
