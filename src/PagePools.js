@@ -4,7 +4,7 @@ import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import Dropdown from 'react-bootstrap/Dropdown'
 import DropdownButton from 'react-bootstrap/DropdownButton'
-import { SYMBOL_USDC, SYMBOL_WETH } from './constants'
+import { SYMBOL_USDC, SYMBOL_WETH, TAB_HOME } from './constants'
 import food from './assets/chocolate_chip_cookie.png'
 import water from './assets/service_water.png'
 
@@ -27,16 +27,16 @@ const Header = styled.div`
     margin-bottom: 20px;
 `
 const ItemTittle = styled(Form.Label)`
-  display: flex;
-  align-items: center;
+    display: flex;
+    align-items: center;
 `
 const CookieIcon = styled.img.attrs({ src: food })`
-  width: 24px;
-  margin-right: 4px;
-`;
+    width: 24px;
+    margin-right: 4px;
+`
 const WaterIcon = styled.img.attrs({ src: water })`
-  width: 24px;
-  margin-right: 4px;
+    width: 24px;
+    margin-right: 4px;
 `
 const CurrencyWrapper = styled.div`
     display: flex;
@@ -56,7 +56,7 @@ const FeedButton = styled(Button)`
     width: 100%;
 `
 
-const PagePools = ({ isConnected }) => {
+const PagePools = ({ isConnected, uniswapClient, handleTabChange }) => {
     const [foodType, setFoodType] = useState(null)
     const [foodAmount, setFoodAmount] = useState(0)
     const [waterType, setWaterType] = useState(null)
@@ -66,34 +66,50 @@ const PagePools = ({ isConnected }) => {
         return !!waterType && !!waterAmount && !!foodType && !!foodAmount
     }, [foodType, foodAmount, waterType, waterAmount])
 
-    const handleFoodAmountInput = useCallback((e) => {
-      setFoodAmount(e.target.value)
+    const handleFoodAmountInput = useCallback(e => {
+        setFoodAmount(e.target.value)
     }, [])
 
     const handleFoodSymbolSelect = useCallback(eventKey => {
         setFoodType(eventKey)
     }, [])
 
-    const handleWaterAmountInput = useCallback((e) => {
-      setWaterAmount(e.target.value)
+    const handleWaterAmountInput = useCallback(e => {
+        setWaterAmount(e.target.value)
     }, [])
 
     const handleWaterSymbolSelect = useCallback(eventKey => {
         setWaterType(eventKey)
     }, [])
 
+    const handleAddLiquiditySubmit = useCallback(async () => {
+        let ethAmount
+        let usdcAmount
+        if (foodType === SYMBOL_WETH) {
+            ethAmount = foodAmount
+            usdcAmount = waterAmount
+        } else {
+            ethAmount = waterAmount
+            usdcAmount = foodAmount
+        }
+        await uniswapClient.addLiquidity(ethAmount, usdcAmount)
+        handleTabChange(TAB_HOME)
+    }, [foodAmount, foodType, handleTabChange, uniswapClient, waterAmount])
+
     return (
         <Root>
             <PoolsForm>
                 <Header>Feed Your Cat!</Header>
                 <Form.Group className="mb-3" controlId="formFood">
-                    <ItemTittle><CookieIcon />Food</ItemTittle>
+                    <ItemTittle>
+                        <CookieIcon />
+                        Food
+                    </ItemTittle>
                     <CurrencyWrapper>
                         <AmountInput placeholder="amount" onChange={handleFoodAmountInput} />
                         <TypeDropDown
                             id="dropdown-button-dark-example2"
                             variant={!!foodType ? 'light' : 'secondary'}
-                            menuVariant="light"
                             title={foodType || 'type'}
                             className="mb-1"
                             onSelect={handleFoodSymbolSelect}
@@ -117,13 +133,15 @@ const PagePools = ({ isConnected }) => {
                 </Form.Group>
 
                 <Form.Group className="mb-3" controlId="formBasicPassword">
-                    <Form.Label><WaterIcon />Water</Form.Label>
+                    <Form.Label>
+                        <WaterIcon />
+                        Water
+                    </Form.Label>
                     <CurrencyWrapper>
                         <AmountInput placeholder="amount" onChange={handleWaterAmountInput} />
                         <TypeDropDown
                             id="dropdown-button-dark-example2"
                             variant={!!waterType ? 'light' : 'secondary'}
-                            menuVariant="light"
                             title={waterType || 'type'}
                             className="mb-1"
                             onSelect={handleWaterSymbolSelect}
@@ -146,9 +164,18 @@ const PagePools = ({ isConnected }) => {
                     </CurrencyWrapper>
                 </Form.Group>
                 <Form.Group>
-                    <Form.Text className="text-muted">{isInfoCompleted ? 'Go feed! your cat will grow up!' : 'Choose currency as food and water, feed your cat.'}</Form.Text>
+                    <Form.Text className="text-muted">
+                        {isInfoCompleted
+                            ? 'Go feed! your cat will grow up!'
+                            : 'Choose currency as food and water, feed your cat.'}
+                    </Form.Text>
                 </Form.Group>
-                <FeedButton variant="primary" type="submit" disabled={!isInfoCompleted}>
+                <FeedButton
+                    variant="primary"
+                    type="submit"
+                    disabled={!isInfoCompleted}
+                    onClick={handleAddLiquiditySubmit}
+                >
                     {isConnected ? 'Go Feed!' : 'Connect Wallet'}
                 </FeedButton>
             </PoolsForm>
