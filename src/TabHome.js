@@ -41,7 +41,7 @@ const FatCat = styled(Cat).attrs({ src: fat_cat })`
     height: 491px;
 `
 
-const PageHome = ({ currentLiquidityAmount }) => {
+const TabHome = ({ currentLiquidityAmount }) => {
     return (
         <Root>
             <NormalCat $show={currentLiquidityAmount <= GROW_UP_AMOUNT_BOUNDARY} />
@@ -50,4 +50,4 @@ const PageHome = ({ currentLiquidityAmount }) => {
     )
 }
 
-export default PageHome
+export default TabHome
