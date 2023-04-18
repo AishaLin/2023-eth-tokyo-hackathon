@@ -94,20 +94,50 @@ const Logo = styled.img.attrs({ src: logo })`
     height: calc(244px * 0.5);
 `
 
-const PagePools = ({ isConnected, uniswapClient, navigateToHomePage, getLiquidityAmount }) => {
-    const [foodType, setFoodType] = useState(null)
+const ItemContent = ({ onAmountChange, onSymbolSelect, currentSymbol, anotherSymbol }) => {
+    return (
+        <CurrencyWrapper>
+            <AmountInput placeholder="amount" onChange={onAmountChange} />
+            <TypeDropDown
+                id="dropdown-button-dark-example2"
+                variant={!!currentSymbol ? 'light' : 'secondary'}
+                title={currentSymbol || 'TOKEN'}
+                className="mb-1"
+                onSelect={onSymbolSelect}
+            >
+                <Dropdown.Item
+                    eventKey={SYMBOL_WETH}
+                    active={currentSymbol === SYMBOL_WETH}
+                    disabled={anotherSymbol === SYMBOL_WETH}
+                >
+                    WETH
+                </Dropdown.Item>
+                <Dropdown.Item
+                    eventKey={SYMBOL_USDC}
+                    active={currentSymbol === SYMBOL_USDC}
+                    disabled={anotherSymbol === SYMBOL_USDC}
+                >
+                    USDC
+                </Dropdown.Item>
+            </TypeDropDown>
+        </CurrencyWrapper>
+    )
+}
+
+const TabFeed = ({ isConnected, uniswapClient, navigateToHomePage, getLiquidityAmount }) => {
+    const [foodSymbol, setFoodType] = useState(null)
     const [foodAmount, setFoodAmount] = useState(0)
-    const [waterType, setWaterType] = useState(null)
+    const [waterSymbol, setWaterType] = useState(null)
     const [waterAmount, setWaterAmount] = useState(0)
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [isSubmitDone, setIsSubmitDone] = useState(false)
     const setTimeoutRef = useRef()
 
     const isInfoCompleted = useMemo(() => {
-        return !!waterType && !!waterAmount && !!foodType && !!foodAmount
-    }, [foodType, foodAmount, waterType, waterAmount])
+        return !!waterSymbol && !!waterAmount && !!foodSymbol && !!foodAmount
+    }, [foodSymbol, foodAmount, waterSymbol, waterAmount])
 
-    const handleFoodAmountInput = useCallback(e => {
+    const handleFoodAmountChange = useCallback(e => {
         setFoodAmount(e.target.value)
     }, [])
 
@@ -115,7 +145,7 @@ const PagePools = ({ isConnected, uniswapClient, navigateToHomePage, getLiquidit
         setFoodType(eventKey)
     }, [])
 
-    const handleWaterAmountInput = useCallback(e => {
+    const handleWaterAmountChange = useCallback(e => {
         setWaterAmount(e.target.value)
     }, [])
 
@@ -127,7 +157,7 @@ const PagePools = ({ isConnected, uniswapClient, navigateToHomePage, getLiquidit
         setIsSubmitting(true)
         let ethAmount
         let usdcAmount
-        if (foodType === SYMBOL_WETH) {
+        if (foodSymbol === SYMBOL_WETH) {
             ethAmount = foodAmount
             usdcAmount = waterAmount
         } else {
@@ -135,11 +165,11 @@ const PagePools = ({ isConnected, uniswapClient, navigateToHomePage, getLiquidit
             usdcAmount = foodAmount
         }
         await uniswapClient.addLiquidity(ethAmount, usdcAmount)
-        setIsSubmitting(false)
         getLiquidityAmount()
+        setIsSubmitting(false)
         setIsSubmitDone(true)
         setTimeoutRef.current = setTimeout(() => navigateToHomePage(), 1300)
-    }, [foodAmount, foodType, getLiquidityAmount, navigateToHomePage, uniswapClient, waterAmount])
+    }, [foodAmount, foodSymbol, getLiquidityAmount, navigateToHomePage, uniswapClient, waterAmount])
 
     const submitButton = useMemo(() => {
         return isConnected ? (
@@ -167,31 +197,12 @@ const PagePools = ({ isConnected, uniswapClient, navigateToHomePage, getLiquidit
                         <FoodIcon />
                         Food
                     </ItemTittle>
-                    <CurrencyWrapper>
-                        <AmountInput placeholder="amount" onChange={handleFoodAmountInput} />
-                        <TypeDropDown
-                            id="dropdown-button-dark-example2"
-                            variant={!!foodType ? 'light' : 'secondary'}
-                            title={foodType || 'TOKEN'}
-                            className="mb-1"
-                            onSelect={handleFoodSymbolSelect}
-                        >
-                            <Dropdown.Item
-                                eventKey={SYMBOL_WETH}
-                                active={foodType === SYMBOL_WETH}
-                                disabled={waterType === SYMBOL_WETH}
-                            >
-                                WETH
-                            </Dropdown.Item>
-                            <Dropdown.Item
-                                eventKey={SYMBOL_USDC}
-                                active={foodType === SYMBOL_USDC}
-                                disabled={waterType === SYMBOL_USDC}
-                            >
-                                USDC
-                            </Dropdown.Item>
-                        </TypeDropDown>
-                    </CurrencyWrapper>
+                    <ItemContent
+                        onAmountChange={handleFoodAmountChange}
+                        onSymbolSelect={handleFoodSymbolSelect}
+                        currentSymbol={foodSymbol}
+                        anotherSymbol={waterSymbol}
+                    />
                 </Form.Group>
 
                 <Form.Group className="mb-3" controlId="formBasicPassword">
@@ -199,31 +210,12 @@ const PagePools = ({ isConnected, uniswapClient, navigateToHomePage, getLiquidit
                         <WaterIcon />
                         Water
                     </Form.Label>
-                    <CurrencyWrapper>
-                        <AmountInput placeholder="amount" onChange={handleWaterAmountInput} />
-                        <TypeDropDown
-                            id="dropdown-button-dark-example2"
-                            variant={!!waterType ? 'light' : 'secondary'}
-                            title={waterType || 'TOKEN'}
-                            className="mb-1"
-                            onSelect={handleWaterSymbolSelect}
-                        >
-                            <Dropdown.Item
-                                eventKey={SYMBOL_WETH}
-                                active={waterType === SYMBOL_WETH}
-                                disabled={foodType === SYMBOL_WETH}
-                            >
-                                WETH
-                            </Dropdown.Item>
-                            <Dropdown.Item
-                                eventKey={SYMBOL_USDC}
-                                active={waterType === SYMBOL_USDC}
-                                disabled={foodType === SYMBOL_USDC}
-                            >
-                                USDC
-                            </Dropdown.Item>
-                        </TypeDropDown>
-                    </CurrencyWrapper>
+                    <ItemContent
+                        onAmountChange={handleWaterAmountChange}
+                        onSymbolSelect={handleWaterSymbolSelect}
+                        currentSymbol={waterSymbol}
+                        anotherSymbol={foodSymbol}
+                    />
                 </Form.Group>
                 <Form.Group>
                     <Form.Text className="text-muted">
@@ -239,4 +231,4 @@ const PagePools = ({ isConnected, uniswapClient, navigateToHomePage, getLiquidit
     )
 }
 
-export default memo(PagePools)
+export default memo(TabFeed)

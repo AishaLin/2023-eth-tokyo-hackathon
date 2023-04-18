@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import Nav from 'react-bootstrap/Nav'
 import styled from 'styled-components'
-import { TAB_HOME, TAB_POOLS } from './constants'
-import PageHome from './PageHome'
-import PagePools from './PagePools'
+import { TAB_HOME, TAB_FEED } from './constants'
+import PageHome from './TabHome'
+import TabFeed from './TabFeed'
 import { UniswapClient } from './utils/uniswap-client'
 
 const Root = styled.div``
@@ -24,12 +24,12 @@ const ConnectButton = styled.div`
 
 const App = () => {
     const uniswapClient = useMemo(() => new UniswapClient(), [])
-    const [currentEventKey, setCurrentEventKey] = useState(TAB_HOME)
+    const [tab, setTab] = useState(TAB_HOME)
     const [address, setAddress] = useState(null)
     const [currentLiquidityAmount, setCurrentLiquidityAmount] = useState()
 
     const handleTabChange = useCallback(eventKey => {
-        setCurrentEventKey(eventKey)
+        setTab(eventKey)
     }, [])
 
     const getLiquidityAmount = useCallback(async () => {
@@ -38,7 +38,7 @@ const App = () => {
     }, [uniswapClient])
 
     const navigateToHomePage = useCallback(() => {
-        setCurrentEventKey(TAB_HOME)
+        setTab(TAB_HOME)
     }, [])
 
     const getAddress = useCallback(async () => {
@@ -74,13 +74,13 @@ const App = () => {
                     <Nav.Link eventKey={TAB_HOME}>Home</Nav.Link>
                 </Nav.Item>
                 <Nav.Item>
-                    <Nav.Link eventKey={TAB_POOLS}>Feed</Nav.Link>
+                    <Nav.Link eventKey={TAB_FEED}>Feed</Nav.Link>
                 </Nav.Item>
                 <ConnectButton onClick={handleConnectWallet}>{address || 'Connect Wallet'}</ConnectButton>
             </Nav>
-            {currentEventKey === TAB_HOME && <PageHome currentLiquidityAmount={currentLiquidityAmount} />}
-            {currentEventKey === TAB_POOLS && (
-                <PagePools
+            {tab === TAB_HOME && <PageHome currentLiquidityAmount={currentLiquidityAmount} />}
+            {tab === TAB_FEED && (
+                <TabFeed
                     isConnected={!!address}
                     uniswapClient={uniswapClient}
                     navigateToHomePage={navigateToHomePage}
